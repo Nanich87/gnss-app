@@ -78,7 +78,7 @@ def toggleDop(state):
 def connectTcpThread():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("192.168.8.6", 27100))
+        s.connect(("localhost", 27100))
 
         global connected
         while connected:
