@@ -14,6 +14,7 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(na
 def createProject():
     file = app.question("New Project", "Enter file name:")
     if file is not None:
+        global project_path
         project_path = file + project_ext
         current_dir = os.path.dirname(os.path.realpath(__file__))
         full_path = os.path.join(current_dir, project_path)
@@ -26,6 +27,7 @@ def openProject():
         setCurrentProject(file)
 
 def setCurrentProject(path):
+    global project_path
     project_path = path
     app.title = project_path
 
@@ -40,9 +42,10 @@ def updateLocation(gga):
     input_latitude.value = gga.lat
     input_longitude.value = gga.lon
     input_altitude.value = "{:.3f}".format(gga.altitude + float(gga.geo_sep) - instrument_height)
+
     input_satellites.value = gga.num_sats
     input_age.value = gga.age_gps_data
-    input_solution.value = gga.gps_qual 
+    input_solution.value = getSolution(gga.gps_qual) 
 
 def updateRmse(gst):
     input_rmse_latitude.value = "{:.3f}".format(gst.std_dev_latitude)
@@ -75,11 +78,11 @@ def toggleDop(state):
 def connectTcpThread():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("localhost", 27100))
+        s.connect(("192.168.8.6", 27100))
 
         global connected
         while connected:
-            data = s.recv(1024)
+            data = s.recv(2048)
             if not data:
                 continue
             
@@ -89,28 +92,34 @@ def connectTcpThread():
                 toggleRmse(False)
                 toggleDop(False)
 
-            text = data.decode("utf-8")
+            text = data.decode("ascii")
             messages = text.splitlines()
 
             gga = None
             gsa = None
             gst = None
 
+            dop_is_updated = False
             for message in messages:
                 try:
                     msg = pynmea2.parse(message)
                     if isinstance(msg, pynmea2.GGA):
                         gga = msg
-                        updateLocation(msg)
+                        updateLocation(gga)
                     elif isinstance(msg, pynmea2.GSA) and gsa is None:
+                        if dop_is_updated == True:
+                            continue
+
                         gsa = msg
-                        updateDop(msg)
+                        updateDop(gsa)
+                        dop_is_updated = True
                     elif isinstance(msg, pynmea2.GST):
                         gst = msg
-                        updateRmse(msg)
+                        updateRmse(gst)
                     else:
                         continue
                 except pynmea2.ParseError as e:
+                    print('Parse error: %s', e)
                     logging.error('Parse error: %s', e)
                     continue
 
@@ -141,7 +150,7 @@ def connectTcpThread():
                                       str(gga.altitude) + separator +
                                       gga.geo_sep + separator +
                                       str(instrument_height) + separator +
-                                      str(gga.gps_qual) + separator +
+                                      getSolution(gga.gps_qual) + separator +
                                       str(gga.num_sats) + separator +
                                       str(gga.age_gps_data) + separator +
                                       str(pdop) + separator +
@@ -150,8 +159,9 @@ def connectTcpThread():
                                       str(std_dev_latitude) + separator +
                                       str(std_dev_longitude) + separator +
                                       str(std_dev_altitude) + '\n')
+                else:
+                    print('No project selected or project path does not exist...')
                 
-                time.sleep(1)
                 measure = False
                 
                 button_measure.enabled = True
@@ -163,10 +173,32 @@ def connectTcpThread():
         s.close()
     except:
         logging.exception("Fatal error in TCP thread", exc_info=True)
-        app.error("Error", "Cannot connect to device!")
+        app.error("Error", "Fatal error in TCP thread...")
     finally:
         connected = False
         button_connect.text = "Connect"
+
+def getSolution(quality):
+    solution = 'Invalid'
+
+    if quality == 1:
+        solution = 'Single'
+    elif quality == 2:
+        solution = 'DGNSS'
+    elif quality == 3:
+        solution = 'PPSFix'
+    elif quality == 4:
+        solution = 'RTKFix'
+    elif quality == 5:
+        solution = 'RTKFloat'
+    elif quality == 6:
+        solution = 'Estimated'
+    elif quality == 7:
+        solution = 'Manual'
+    elif quality == 8:
+        solution = 'Simulation'
+
+    return solution
 
 def setInstrumentHeight():
     try:
