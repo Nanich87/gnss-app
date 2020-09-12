@@ -22,14 +22,14 @@
 
 ## Python Libs
 
-### Python 2
-
-<code>sudo pip install guizero</code>
-
-<code>sudo pip install pynmea2</code>
-
 ### Python 3
 
 <code>sudo pip3 install guizero</code>
 
 <code>sudo pip3 install pynmea2</code>
+
+### Python 2
+
+<code>sudo pip install guizero</code>
+
+<code>sudo pip install pynmea2</code>
