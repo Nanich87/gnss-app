@@ -27,7 +27,7 @@ def openProject():
 
 def setCurrentProject(path):
     project_path = path
-    text_project.value = project_path
+    app.title = project_path
 
 def closeApp():
     if yesno("Close", "Do you want to quit?"):
@@ -191,14 +191,14 @@ def connectDevice():
 
 def savePoint():
     if connected == False:
-        app.info("Warning", "Device is not connected!")
+        app.info("Info", "No GNSS device connected...")
         return
     
     global measure
     measure = True
     button_measure.enabled = False
 
-app = App(title="Land Survey", width=500, height=400)
+app = App(title="Land Survey", width=350, height=400)
 #app.tk.attributes("-fullscreen", True)
 
 menubar = MenuBar(app,
@@ -220,20 +220,7 @@ button = PushButton(instrument_setup_box, text="Set", padx=20, command=setInstru
 buttons_box = Box(app, width="fill", align="bottom")
 
 button_connect = PushButton(buttons_box, text="Connect", command=connectDevice, align="left")
-text_project = Text(buttons_box, text="No project selected", align="bottom")
 button_measure = PushButton(buttons_box, text="Measure", command=savePoint, align="right")
-
-# DOP
-dop_box = Box(app, height="fill", align="right")
-dop_inner_box = Box(dop_box, layout="grid", align="top")
-
-text_pdop = Text(dop_inner_box, text="PDOP:", align="left", grid=[0,0])
-text_hdop = Text(dop_inner_box, text="HDOP:", align="left", grid=[0,1])
-text_vdop = Text(dop_inner_box, text="VDOP:", align="left", grid=[0,2])
-
-input_pdop = TextBox(dop_inner_box, text="---", grid=[1,0])
-input_hdop = TextBox(dop_inner_box, text="---", grid=[1,1])
-input_vdop = TextBox(dop_inner_box, text="---", grid=[1,2])
 
 # Location
 location_box = Box(app, width="fill", align="top")
@@ -265,5 +252,14 @@ text_solution = Text(location_inner_box, text="Solution:", align="left", grid=[0
 input_satellites = TextBox(location_inner_box, width="fill", text="---", grid=[1,6])
 input_age = TextBox(location_inner_box, width="fill", text="---", grid=[1,7])
 input_solution = TextBox(location_inner_box, width="fill", text="---", grid=[1,8])
+
+# DOP
+text_pdop = Text(location_inner_box, text="PDOP:", align="left", grid=[0,9])
+text_hdop = Text(location_inner_box, text="HDOP:", align="left", grid=[0,10])
+text_vdop = Text(location_inner_box, text="VDOP:", align="left", grid=[0,11])
+
+input_pdop = TextBox(location_inner_box, width="fill", text="---", grid=[1,9])
+input_hdop = TextBox(location_inner_box, width="fill", text="---", grid=[1,10])
+input_vdop = TextBox(location_inner_box, width="fill", text="---", grid=[1,11])
 
 app.display()
