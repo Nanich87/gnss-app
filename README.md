@@ -4,23 +4,24 @@
 
 ### Python 3
 
-sudo apt install python3-tk
+<code>sudo apt install python3-tk</code>
 
-sudo apt install python3-pip
+<code>sudo apt install python3-pip</code>
 
 ### Python 2
 
-sudo apt-get install python-tk
+<code>sudo apt-get install python-tk</code>
 
-sudo apt install python-pip
+<code>sudo apt install python-pip</code>
 
 ## ArchLinux
 
-sudo pacman -S python-pip
+<code>sudo pacman -S python-pip</code>
 
-sudo pacman -S tk
+<code>sudo pacman -S tk</code>
 
+## Python Libs
 
-sudo pip install guizero
+<code>sudo pip install guizero</code>
 
-sudo pip install pynmea2
+<code>sudo pip install pynmea2</code>
